@@ -1,0 +1,39 @@
+---
+import type { CollectionEntry } from "astro:content";
+import AboutMeCard from "./AboutMeCard.astro";
+import ArticleList from "./ArticleList.astro";
+import CategoryCard from "./CategoryCard.astro";
+import MilestonesCard from "./MilestonesCard.astro";
+import Pagination from "./Pagination.astro";
+import SiteInfoCard from "./SiteInfoCard.astro";
+import { getPaginationConfig } from '../lib/site-config';
+
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  articles: CollectionEntry<"articles">[];
+}
+
+const { currentPage, totalPages, articles } = Astro.props;
+const paginationConfig = getPaginationConfig();
+const paginationPosition = paginationConfig.position;
+const showPaginationUp = paginationPosition === "UP";
+const showPaginationDown = paginationPosition === "DOWN";
+---
+
+{showPaginationUp == true && (
+  <Pagination currentPage={currentPage} totalPages={totalPages} />
+)}
+
+<div id="articles">
+  <ArticleList articles={articles}>
+    <SiteInfoCard slot="site-info" />
+    <CategoryCard slot="category-card" />
+    <AboutMeCard slot="about-me" />
+    <MilestonesCard slot="milestones" />
+  </ArticleList>
+</div>
+
+{showPaginationDown == true && (
+  <Pagination currentPage={currentPage} totalPages={totalPages} />
+)}

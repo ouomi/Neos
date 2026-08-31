@@ -1,0 +1,9 @@
+.category-page-category-card {
+  height: 48rem;
+}
+
+.category-page-category-card .category-card {
+  height: 100%;
+  max-height: none;
+  margin-top: 0;
+}

@@ -1,0 +1,97 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ArticleSidebar from '../components/ArticleSidebar.astro';
+import { getSiteBasicInfo, getSiteOwner } from '../lib/site-config';
+import { getPublishedArticles } from '../lib/article-catalog';
+import { getHomeUrl } from '../lib/site-routes';
+import '../styles/article.css';
+
+export async function getStaticPaths() {
+  const articles = await getPublishedArticles();
+
+  return articles.map(function (article) {
+    return {
+      params: { permalink: article.data.permalink },
+      props: { article },
+    };
+  });
+}
+
+const { article } = Astro.props;
+const { Content } = await render(article);
+const homeUrl = getHomeUrl();
+const siteBasicInfo = getSiteBasicInfo();
+const siteOwner = getSiteOwner();
+const { title, date } = article.data;
+let author = siteOwner.name;
+
+if (article.data.author !== undefined && article.data.author !== null) {
+  author = article.data.author;
+}
+---
+
+<BaseLayout title={`${title} · ${siteBasicInfo.title}`}>
+  <div class="article-page">
+    <ArticleSidebar />
+    <div class="article-main">
+      <p class="back-link"><a href={homeUrl}>返回首页</a></p>
+
+      <article class="article" data-pagefind-body>
+        <header class="article-header">
+          <h1 class="article-title" data-pagefind-weight="10">{title}</h1>
+          <div class="article-meta" aria-label="文章信息">
+            <span class="article-author">作者：{author}</span>
+            <time class="article-date" datetime={date.toISOString()}>
+              发布于 {date.toLocaleDateString(siteBasicInfo.language)}
+            </time>
+          </div>
+        </header>
+        <div class="article-content">
+          <Content />
+        </div>
+      </article>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  let imageViewerLoaded = false;
+  let codeBlocksLoaded = false;
+
+  function loadImageViewer() {
+    if (imageViewerLoaded === true) {
+      return;
+    }
+
+    imageViewerLoaded = true;
+    window.removeEventListener('pointerdown', loadImageViewer);
+    import('../scripts/image-viewer.ts');
+  }
+
+  function loadCodeBlocks() {
+    if (codeBlocksLoaded === true) {
+      return;
+    }
+
+    codeBlocksLoaded = true;
+    import('../scripts/code-block.ts');
+  }
+
+  if (document.querySelector('.article-content img') !== null) {
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(loadImageViewer, { timeout: 3000 });
+    } else {
+      window.setTimeout(loadImageViewer, 1500);
+    }
+
+    window.addEventListener('pointerdown', loadImageViewer, {
+      once: true,
+      passive: true,
+    });
+  }
+
+  if (document.querySelector('.article-content pre.astro-code') !== null) {
+    loadCodeBlocks();
+  }
+</script>

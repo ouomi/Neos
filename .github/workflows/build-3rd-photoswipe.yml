@@ -1,0 +1,114 @@
+name: 编译并发布 PhotoSwipe
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Release 标签，例如 photoswipe-v5.4.4
+        required: true
+        default: photoswipe-v5.4.4
+        type: string
+      release_name:
+        description: Release 标题
+        required: true
+        default: PhotoSwipe 5.4.4
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-3rd-photoswipe-${{ inputs.release_tag }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-release:
+    name: 编译并发布
+    runs-on: ubuntu-latest
+    env:
+      PHOTOSWIPE_VERSION: 5.4.4
+      PHOTOSWIPE_COMMIT: fd85184b450f451bc4aa2697f6d0a79304d13473
+      RELEASE_TAG: ${{ inputs.release_tag }}
+      RELEASE_NAME: ${{ inputs.release_name }}
+
+    steps:
+      - name: 检出当前仓库
+        uses: actions/checkout@v4
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: 检出固定版本的 PhotoSwipe 源码
+        uses: actions/checkout@v4
+        with:
+          repository: dimsemenov/PhotoSwipe
+          ref: fd85184b450f451bc4aa2697f6d0a79304d13473
+          path: .ci/photoswipe
+          persist-credentials: false
+
+      - name: 编译 PhotoSwipe
+        run: |
+          set -euo pipefail
+          test "$(git -C .ci/photoswipe rev-parse HEAD)" = "$PHOTOSWIPE_COMMIT"
+          npm ci --ignore-scripts --prefix .ci/photoswipe
+          npm run build --prefix .ci/photoswipe
+
+      - name: 打包并生成校验文件
+        id: package
+        run: |
+          set -euo pipefail
+          if [[ ! "$RELEASE_TAG" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
+            echo 'Release 标签只能包含字母、数字、点、下划线和连字符。' >&2
+            exit 1
+          fi
+
+          package_dir="$RUNNER_TEMP/photoswipe-release"
+          asset_dir="$package_dir/photoswipe"
+          archive_name="photoswipe-${PHOTOSWIPE_VERSION}-built.tar.gz"
+          checksum_name="photoswipe-${PHOTOSWIPE_VERSION}-SHA256SUMS.txt"
+          archive_path="$package_dir/$archive_name"
+          checksum_path="$package_dir/$checksum_name"
+
+          install -D -m 0644 .ci/photoswipe/dist/photoswipe.css "$asset_dir/photoswipe.css"
+          install -D -m 0644 .ci/photoswipe/dist/photoswipe.esm.js "$asset_dir/photoswipe.esm.js"
+          install -D -m 0644 .ci/photoswipe/dist/photoswipe-lightbox.esm.js "$asset_dir/photoswipe-lightbox.esm.js"
+
+          (
+            cd "$package_dir"
+            sha256sum photoswipe/photoswipe.css \
+              photoswipe/photoswipe.esm.js \
+              photoswipe/photoswipe-lightbox.esm.js > "$checksum_name"
+            tar -czf "$archive_name" photoswipe
+          )
+
+          {
+            echo "archive_path=$archive_path"
+            echo "checksum_path=$checksum_path"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: 创建当前仓库的 Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARCHIVE_PATH: ${{ steps.package.outputs.archive_path }}
+          CHECKSUM_PATH: ${{ steps.package.outputs.checksum_path }}
+        run: |
+          set -euo pipefail
+          notes_file="$RUNNER_TEMP/photoswipe-release-notes.md"
+
+          printf '%s\n' \
+            "此 Release 由 GitHub Actions 从 PhotoSwipe ${PHOTOSWIPE_VERSION} 源码编译生成。" \
+            '' \
+            "- 上游提交：${PHOTOSWIPE_COMMIT}" \
+            '- 构建命令：`npm ci --ignore-scripts && npm run build`' \
+            '- 附件包括编译产物压缩包及各文件的 SHA-256 校验值。' \
+            > "$notes_file"
+
+          gh release create "$RELEASE_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "$RELEASE_NAME" \
+            --notes-file "$notes_file" \
+            "$ARCHIVE_PATH" \
+            "$CHECKSUM_PATH"

@@ -1,0 +1,74 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getSiteBasicInfo } from '../lib/site-config';
+import "../styles/page-shell.css";
+
+const siteBasicInfo = getSiteBasicInfo();
+const siteTitle = siteBasicInfo.title;
+---
+
+<BaseLayout title={siteTitle} description={`搜索 ${siteBasicInfo.title} 的文章`}>
+  <header class="site-header">
+    <h1 class="site-title">{siteTitle}</h1>
+    <p class="site-description">点击下方按钮开始搜索。</p>
+    <button
+      class="search-page-trigger"
+      type="button"
+      aria-label="搜索文章"
+      aria-haspopup="dialog"
+      aria-expanded="false"
+      data-navbar-search-trigger
+      data-pagefind-ignore
+    >
+      <span class="search-page-trigger-icon" aria-hidden="true"></span>
+      搜索文章
+    </button>
+  </header>
+</BaseLayout>
+
+<style>
+  .search-page-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.5rem;
+    padding: 0.5rem 0.9rem;
+    margin-top: 1rem;
+    color: var(--md-on-primary);
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: var(--md-primary);
+    border: 1px solid var(--md-primary);
+    border-radius: 0.45rem;
+    cursor: pointer;
+  }
+
+  .search-page-trigger:hover {
+    background: color-mix(in srgb, var(--md-primary) 88%, var(--md-on-primary));
+  }
+
+  .search-page-trigger:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 0.2rem;
+  }
+
+  .search-page-trigger-icon {
+    width: 0.85rem;
+    height: 0.85rem;
+    border: 0.13rem solid currentColor;
+    border-radius: 50%;
+  }
+
+  .search-page-trigger-icon::after {
+    display: block;
+    width: 0.42rem;
+    height: 0.13rem;
+    margin: 0.68rem 0 0 0.58rem;
+    content: "";
+    background: currentColor;
+    border-radius: 999px;
+    transform: rotate(45deg);
+    transform-origin: left center;
+  }
+</style>

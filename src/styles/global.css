@@ -1,0 +1,140 @@
+:root {
+  color-scheme: light;
+  font-family:
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Microsoft YaHei", sans-serif;
+  font-synthesis: none;
+  /* text-rendering: optimizeSpeed; */
+  text-rendering: optimizeLegibility;
+
+  /* Material Design 3 roles using a soft lavender palette. */
+  --md-primary: #73548f;
+  --md-on-primary: #ffffff;
+  --md-primary-container: #eedcff;
+  --md-on-primary-container: #2b0d42;
+  --md-secondary: #68596d;
+  --md-on-secondary: #ffffff;
+  --md-secondary-container: #f0ddef;
+  --md-on-secondary-container: #27152b;
+  --md-surface: #f7f3f8;
+  --md-surface-container-lowest: #ffffff;
+  --md-surface-container-low: #fbf8fc;
+  --md-surface-container: #f2edf4;
+  --md-surface-container-high: #f1e8f5;
+  --md-on-surface: #191919;
+  --md-on-surface-variant: #666666;
+  --md-outline: #827883;
+  --md-outline-variant: #d3c7d4;
+  --md-shadow: rgb(49 37 53 / 10%);
+
+  /* Compatibility names used by page-level styles. */
+  --page-background: var(--md-surface);
+  --surface-background: var(--md-surface-container-lowest);
+  --surface-muted: var(--md-surface-container-low);
+  --text-primary: var(--md-on-surface);
+  --text-secondary: var(--md-on-surface-variant);
+  --border-color: var(--md-outline-variant);
+  --accent-color: var(--md-primary);
+  --shadow-color: var(--md-shadow);
+
+  color: var(--md-on-surface);
+  background: var(--md-surface);
+}
+
+html[data-site-theme="light"] {
+  color-scheme: light;
+}
+
+html[data-site-theme="dark"] {
+  color-scheme: dark;
+
+  --md-primary: #dfb8f7;
+  --md-on-primary: #422255;
+  --md-primary-container: #5a396d;
+  --md-on-primary-container: #f2d7ff;
+  --md-secondary: #d5c0d5;
+  --md-on-secondary: #392b3d;
+  --md-secondary-container: #504154;
+  --md-on-secondary-container: #f2dcf1;
+  --md-surface: #211f22;
+  --md-surface-container-lowest: #19171a;
+  --md-surface-container-low: #272328;
+  --md-surface-container: #2c282d;
+  --md-surface-container-high: #39303c;
+  --md-on-surface: #f2f2f2;
+  --md-on-surface-variant: #b8b8b8;
+  --md-outline: #9b8e9c;
+  --md-outline-variant: #4d444e;
+  --md-shadow: rgb(0 0 0 / 30%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 20rem;
+  overflow-wrap: break-word;
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  padding-top: 3.75rem;
+  color: var(--text-primary);
+  background: var(--page-background);
+}
+
+main {
+  display: block;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 0.2em;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 0.2rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-site-theme="light"]) {
+    color-scheme: dark;
+
+    /* Material Design 3 dark roles using the same lavender palette. */
+    --md-primary: #dfb8f7;
+    --md-on-primary: #422255;
+    --md-primary-container: #5a396d;
+    --md-on-primary-container: #f2d7ff;
+    --md-secondary: #d5c0d5;
+    --md-on-secondary: #392b3d;
+    --md-secondary-container: #504154;
+    --md-on-secondary-container: #f2dcf1;
+    --md-surface: #211f22;
+    --md-surface-container-lowest: #19171a;
+    --md-surface-container-low: #272328;
+    --md-surface-container: #2c282d;
+    --md-surface-container-high: #39303c;
+    /* Neutral text keeps the lavender surfaces easy to read. */
+    --md-on-surface: #f2f2f2;
+    --md-on-surface-variant: #b8b8b8;
+    --md-outline: #9b8e9c;
+    --md-outline-variant: #4d444e;
+    --md-shadow: rgb(0 0 0 / 30%);
+
+    color: var(--md-on-surface);
+    background: var(--md-surface);
+  }
+
+}

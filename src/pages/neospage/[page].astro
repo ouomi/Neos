@@ -1,0 +1,38 @@
+---
+import type { GetStaticPaths } from "astro";
+import HomePage from "../../components/HomePage.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getHomeArticleListPages } from '../../lib/article-catalog';
+import { getSiteBasicInfo } from '../../lib/site-config';
+import '../../styles/page-shell.css';
+
+export const getStaticPaths = (async function () {
+  const homeArticleListPages = await getHomeArticleListPages();
+  const paths = [];
+
+  for (let index = 1; index < homeArticleListPages.length; index += 1) {
+    const homeArticleListPage = homeArticleListPages[index];
+
+    paths.push({
+      params: { page: String(homeArticleListPage.currentPage) },
+      props: homeArticleListPage,
+    });
+  }
+
+  return paths;
+}) satisfies GetStaticPaths;
+
+const homeArticleListPage = Astro.props;
+const siteBasicInfo = getSiteBasicInfo();
+const siteTitle = siteBasicInfo.title;
+const description = `${siteBasicInfo.description} 第 ${homeArticleListPage.currentPage} 页`;
+---
+
+<BaseLayout title={siteTitle} description={description}>
+  <header class="site-header">
+    <h1 class="site-title">{siteTitle}</h1>
+    <p class="site-description">{description}</p>
+  </header>
+
+  <HomePage {...homeArticleListPage} />
+</BaseLayout>

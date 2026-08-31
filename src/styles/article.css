@@ -1,0 +1,329 @@
+.site-main {
+  width: min(100% - 2rem, 50rem);
+  margin-inline: auto;
+  padding-block: 4rem;
+  transition:
+    width 160ms ease,
+    margin-left 160ms ease;
+}
+
+.article-main {
+  min-width: 0;
+}
+
+.back-link {
+  margin: 0;
+}
+
+.back-link a {
+  color: var(--text-secondary);
+}
+
+.back-link a:hover {
+  color: var(--accent-color);
+}
+
+.article {
+  margin-top: 4rem;
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.article-header {
+  margin-bottom: 3rem;
+}
+
+.article-title {
+  margin: 0 0 0.5rem;
+  font-size: clamp(2rem, 6vw, 3rem);
+  line-height: 1.2;
+}
+
+.article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.article-author {
+  font-weight: 600;
+}
+
+.article-date {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  background: var(--surface-muted);
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+}
+
+.article-content :is(h2, h3, h4, h5, h6) {
+  margin-block: 2em 0.75em;
+  line-height: 1.35;
+}
+
+.article-content p,
+.article-content ul,
+.article-content ol,
+.article-content blockquote,
+.article-content pre,
+.article-content table {
+  margin-block: 1.25em;
+}
+
+.article-content blockquote {
+  margin-inline: 0;
+  padding-left: 1rem;
+  color: var(--text-secondary);
+  border-left: 3px solid var(--border-color);
+}
+
+.article-content code {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.article-content :not(pre) > code {
+  padding: 0.15em 0.35em;
+  background: var(--surface-muted);
+  border-radius: 0.2rem;
+}
+
+.article-content pre {
+  overflow-x: auto;
+  padding: 1rem;
+  background: var(--surface-muted);
+  border-radius: 0.3rem;
+}
+
+/* 代码块工具栏：语言标签（左上）和复制按钮（右上）。 */
+.article-content .code-block {
+  margin-block: 1.25em;
+}
+
+.article-content .code-block pre {
+  margin-block: 0;
+}
+
+.article-content .code-block-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.3rem 0.55rem 0.3rem 0.85rem;
+  border-radius: 0.3rem 0.3rem 0 0;
+}
+
+.article-content .code-block-lang {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.75rem;
+  line-height: 1;
+  opacity: 0.75;
+}
+
+.article-content .code-block-copy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.article-content .code-block-copy:hover {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.article-content .code-block-copy:focus-visible {
+  outline: 2px solid color-mix(in srgb, currentColor 45%, transparent);
+  outline-offset: 1px;
+}
+
+.article-content .code-block-copy svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.article-content .code-block-copy .code-block-copy-check {
+  display: none;
+}
+
+.article-content .code-block-copy.is-copied .code-block-copy-icon {
+  display: none;
+}
+
+.article-content .code-block-copy.is-copied .code-block-copy-check {
+  display: block;
+}
+
+.article-content table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+
+.article-content img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  /* content-visibility: auto; */
+}
+
+.article-content img.article-image-trigger {
+  cursor: zoom-in;
+}
+
+/* Containers that can be used directly from raw HTML in Markdown articles. */
+.article-content .md-details,
+.article-content .md-tip,
+.article-content .md-warning,
+.article-content .md-error {
+  margin-block: 1.5em;
+}
+
+.article-content .md-details {
+  overflow: hidden;
+  background: var(--surface-muted);
+  border-radius: 0.35rem;
+}
+
+.article-content .md-details > summary {
+  position: relative;
+  padding: 0.85rem 1rem 0.85rem 2.65rem;
+  font-weight: 600;
+  line-height: 1.5;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.article-content .md-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.article-content .md-details > summary::before {
+  position: absolute;
+  top: 1.15rem;
+  left: 1.15rem;
+  width: 0.55rem;
+  height: 0.55rem;
+  content: "";
+  border-right: 2px solid var(--text-secondary);
+  border-bottom: 2px solid var(--text-secondary);
+  transform: rotate(-45deg);
+  transition: transform 150ms ease;
+}
+
+.article-content .md-details > summary:hover {
+  color: var(--accent-color);
+}
+
+.article-content .md-details[open] > summary::before {
+  transform: rotate(45deg) translate(-0.1rem, -0.1rem);
+}
+
+.article-content .md-details[open] > summary {
+  padding-bottom: 0.7rem;
+}
+
+.article-content .md-details-content {
+  padding: 0.1rem 1.25rem 1rem;
+  color: var(--text-secondary);
+}
+
+.article-content :is(.md-tip, .md-warning, .md-error) {
+  --container-accent: #42b983;
+  --container-background: rgb(66 185 131 / 11%);
+
+  position: relative;
+  padding: 0.85rem 1.25rem 0.85rem 1rem;
+  background: var(--container-background);
+  border-left: 3px solid var(--container-accent);
+}
+
+.article-content .md-warning {
+  --container-accent: #e7c000;
+  --container-background: rgb(255 229 100 / 22%);
+}
+
+.article-content .md-error {
+  --container-accent: #d40000;
+  --container-background: rgb(212 0 0 / 12%);
+}
+
+.article-content :is(.md-tip, .md-warning, .md-error, .md-details-content) > :first-child {
+  margin-top: 0.25rem;
+}
+
+.article-content :is(.md-tip, .md-warning, .md-error, .md-details-content) > :last-child {
+  margin-bottom: 0.25rem;
+}
+
+.article-content .md-center {
+  margin-block: 1.5em;
+  text-align: center;
+}
+
+.article-content .md-center > :is(img, picture, video, figure) {
+  margin-inline: auto;
+}
+
+.article-content .md-pp {
+  display: flex;
+  justify-content: center;
+  margin-block: 1.5em;
+}
+
+.article-content .md-pp > :is(img, picture),
+.article-content .md-pp > picture > img {
+  width: auto;
+  max-width: 100%;
+  max-height: min(70vh, 36rem);
+  object-fit: contain;
+}
+
+.article-content th,
+.article-content td {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color);
+}
+
+@media (min-width: 60.0625rem) {
+  html[data-sidebar-isopen="true"] .site-main:has(> .article-page) {
+    width: min(50rem, calc(100% - 21rem));
+    margin-right: 0;
+    margin-left: calc(
+      19.5rem + (100% - 21rem - min(50rem, 100% - 21rem)) / 2
+    );
+  }
+}
+
+@media (max-width: 60rem) {
+  .site-main {
+    padding-block: 2.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-main {
+    transition: none;
+  }
+}

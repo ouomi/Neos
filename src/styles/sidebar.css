@@ -1,0 +1,185 @@
+.article-sidebar {
+  --sidebar-width: min(19rem, calc(100vw - 3.5rem));
+  position: fixed;
+  z-index: 90;
+  top: 1rem;
+  bottom: 0;
+  left: 0;
+  width: 0;
+}
+
+.article-sidebar-panel {
+  position: fixed;
+  top: 1rem;
+  bottom: 0;
+  left: 0;
+  width: var(--sidebar-width);
+  overflow-y: auto;
+  padding: 3.75rem 1rem 2rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  background: var(--surface-background);
+  border-right: 1px solid var(--border-color);
+  box-shadow: 0.35rem 0 1rem var(--shadow-color);
+  scrollbar-color: color-mix(in srgb, var(--text-secondary) 22%, transparent) transparent;
+  scrollbar-width: thin;
+  transform: translateX(0);
+  transition: transform 160ms ease;
+}
+
+.article-sidebar-panel::-webkit-scrollbar {
+  width: 0.35rem;
+}
+
+.article-sidebar-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.article-sidebar-panel::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--text-secondary) 18%, transparent);
+  border-radius: 1rem;
+}
+
+.article-sidebar-panel:hover {
+  scrollbar-color: color-mix(in srgb, var(--text-secondary) 40%, transparent) transparent;
+}
+
+.article-sidebar-panel:hover::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--text-secondary) 35%, transparent);
+}
+
+.article-sidebar[data-initial] .article-sidebar-panel,
+.article-sidebar[data-initial] .article-sidebar-toggle {
+  transition: none;
+}
+
+.article-sidebar[data-state="closed"] .article-sidebar-panel {
+  transform: translateX(-100%);
+}
+
+html[data-sidebar-isopen="true"]
+  .article-sidebar[data-initial]
+  .article-sidebar-panel {
+  transform: translateX(0);
+}
+
+html[data-sidebar-isopen="true"]
+  .article-sidebar[data-initial]
+  .article-sidebar-status {
+  visibility: hidden;
+}
+
+.article-sidebar-toggle {
+  position: fixed;
+  /* // */
+  z-index: 1; 
+  top: 80%;
+  /* // */
+  left: calc(var(--sidebar-width) - 1px);
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 4.5rem;
+  padding: 0 0.25rem 0 0;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 1.75rem;
+  line-height: 1;
+  background: var(--surface-background);
+  border: 1px solid var(--border-color);
+  border-left: 0;
+  border-radius: 0 100% 100% 0;
+  box-shadow: none;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition:
+    left 160ms ease,
+    color 160ms ease,
+    background-color 160ms ease;
+}
+
+.article-sidebar[data-state="closed"] .article-sidebar-toggle {
+  left: 0;
+}
+
+html[data-sidebar-isopen="true"]
+  .article-sidebar[data-initial]
+  .article-sidebar-toggle {
+  left: calc(var(--sidebar-width) - 1px);
+}
+
+.article-sidebar-toggle:hover {
+  color: var(--accent-color);
+  background: var(--surface-muted);
+}
+
+.article-sidebar-toggle:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 0.2rem;
+}
+
+.article-sidebar-status {
+  margin: 0;
+  padding: 0.35rem 0.5rem;
+  color: var(--text-secondary);
+}
+
+.sidebar-tree {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sidebar-tree .sidebar-tree {
+  padding-left: 0.9rem;
+}
+
+.sidebar-directory summary {
+  padding: 0.35rem 0;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.sidebar-directory summary::marker {
+  color: var(--accent-color);
+}
+
+.sidebar-article a {
+  display: block;
+  padding: 0.35rem 0.5rem;
+  border-left: 2px solid transparent;
+  color: inherit;
+  text-decoration: none;
+}
+
+.sidebar-article a:hover {
+  color: var(--accent-color);
+  background: var(--surface-muted);
+}
+
+.sidebar-article a[aria-current="page"] {
+  border-left-color: var(--accent-color);
+  color: var(--accent-color);
+  background: var(--surface-muted);
+  font-weight: 600;
+}
+
+@media (max-width: 60rem) {
+  .article-sidebar[data-initial] .article-sidebar-panel,
+  .article-sidebar:not([data-state="open"]) .article-sidebar-panel {
+    transform: translateX(-100%);
+  }
+
+  .article-sidebar[data-initial] .article-sidebar-toggle,
+  .article-sidebar:not([data-state="open"]) .article-sidebar-toggle {
+    left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .article-sidebar-panel,
+  .article-sidebar-toggle {
+    transition: none;
+  }
+}

@@ -1,0 +1,77 @@
+.site-main {
+  width: min(100% - 2rem, 76rem);
+  margin-inline: auto;
+  padding-block: clamp(2.5rem, 7vw, 5rem);
+}
+
+.site-header {
+  position: relative;
+  width: min(100%, 48rem);
+  margin: 0 auto 2.25rem;
+  padding: 0.5rem 0 1.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.site-header::before {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 3rem;
+  height: 2px;
+  content: "";
+  background: var(--accent-color);
+}
+
+.site-title {
+  margin: 0 0 0.65rem;
+  font-size: clamp(2.25rem, 7vw, 3.75rem);
+  font-weight: 650;
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+}
+
+.site-title::after {
+  color: var(--accent-color);
+  content: ".";
+}
+
+.site-title-link {
+  display: inline-block;
+  margin-bottom: 0.65rem;
+  color: var(--text-primary);
+  font-size: clamp(1.9rem, 6vw, 2.75rem);
+  font-weight: 650;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.site-title-link::after {
+  color: var(--accent-color);
+  content: ".";
+}
+
+.site-title-link:hover {
+  color: var(--accent-color);
+}
+
+.site-description,
+.site-header p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+@media (max-width: 40rem) {
+  .site-main {
+    width: min(100% - 1.5rem, 48rem);
+    padding-block: 2rem;
+  }
+
+  .site-header {
+    margin-bottom: 1.5rem;
+    padding-top: 0;
+    padding-bottom: 1.25rem;
+  }
+}

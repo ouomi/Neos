@@ -1,0 +1,42 @@
+---
+import type { SidebarNode } from '../lib/article-catalog';
+import { getArticleUrl } from '../lib/site-routes';
+import SidebarTree from './SidebarTree.astro';
+
+interface Props {
+  nodes: SidebarNode[];
+  currentArticleId: string;
+}
+
+const { nodes, currentArticleId } = Astro.props;
+---
+
+<ul class="sidebar-tree">
+  {nodes.map(function (node) {
+    if (node.type === 'directory') {
+      const isCurrentBranch =
+        currentArticleId === node.path || currentArticleId.startsWith(`${node.path}/`);
+
+      return (
+        <li class="sidebar-directory">
+          <details open={isCurrentBranch}>
+            <summary>{node.name}</summary>
+            <SidebarTree nodes={node.children} currentArticleId={currentArticleId} />
+          </details>
+        </li>
+      );
+    }
+
+    const isCurrentArticle = node.id === currentArticleId;
+    let currentAttribute = {};
+    if (isCurrentArticle === true) {
+      currentAttribute = { 'aria-current': 'page' };
+    }
+
+    return (
+      <li class="sidebar-article">
+        <a href={getArticleUrl(node.permalink)} {...currentAttribute}>{node.title}</a>
+      </li>
+    );
+  })}
+</ul>

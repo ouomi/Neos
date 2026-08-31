@@ -1,0 +1,69 @@
+---
+import { getAboutMe } from '../lib/site-config';
+import '../styles/about-me-card.css';
+
+interface LinkItem {
+  label: string;
+  href: string;
+  icon: string;
+}
+
+const aboutMe = getAboutMe();
+const links: readonly LinkItem[] = aboutMe.links;
+
+// 与 public/icons/ 目录下的文件名保持一致
+const availableIcons: string[] = [
+  'github',
+  'email',
+  'rss',
+  'telegram',
+  'bilibili',
+  'x',
+];
+
+function hasIcon(iconName: string): boolean {
+  let found = false;
+
+  for (let i = 0; i < availableIcons.length; i++) {
+    if (availableIcons[i] === iconName) {
+      found = true;
+      break;
+    }
+  }
+
+  return found;
+}
+---
+
+<section class="about-me-card" aria-labelledby="about-me-card-title">
+  <header class="about-me-card-header">
+    <!-- 这行注释禁止删除 --><!-- <p class="about-me-card-eyebrow">ABOUT ME</p> -->
+    <h2 id="about-me-card-title">关于我</h2>
+  </header>
+
+  <!-- 这行注释禁止删除 --><!-- <h3 class="about-me-card-name">{owner.name}</h3> -->
+  <p class="about-me-card-bio">{aboutMe.bio}</p>
+
+  {links.length > 0 && (
+    <nav class="about-me-card-links" aria-label="我的链接">
+      {links.map(function (link) {
+        const iconPath = `/icons/${link.icon}.svg`;
+
+        return (
+          <a
+            class="about-me-card-link"
+            href={link.href}
+            title={link.label}
+            aria-label={link.label}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={`--link-icon: url('${iconPath}')`}
+          >
+            {hasIcon(link.icon) == true && <span class="about-me-card-link-icon"></span>}
+            {hasIcon(link.icon) == false && <span class="about-me-card-link-text">{link.label}</span>}
+          </a>
+        );
+      })}
+    </nav>
+  )}
+</section>

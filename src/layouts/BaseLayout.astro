@@ -1,0 +1,71 @@
+---
+import "../styles/global.css";
+import SiteNavbar from "../components/SiteNavbar.astro";
+import NavbarSearchModal from "../components/NavbarSearchModal.astro";
+import { getSiteBasicInfo } from '../lib/site-config';
+import { articleSidebarOpenStorageKey } from '../lib/article-sidebar-state';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title } = Astro.props;
+const siteBasicInfo = getSiteBasicInfo();
+const siteLang = siteBasicInfo.language;
+let description = Astro.props.description;
+
+if (description === undefined) {
+  description = siteBasicInfo.description;
+}
+---
+
+<!doctype html>
+<html lang={siteLang} data-site-theme="dark" data-pf-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="theme-color"
+      content="#211f22"
+      media="(prefers-color-scheme: dark)"
+    />
+    <meta
+      name="theme-color"
+      content="#f7f3f8"
+      media="(prefers-color-scheme: light)"
+    />
+    <script is:inline define:vars={{ articleSidebarOpenStorageKey }}>
+      try {
+        const theme = localStorage.getItem("localstorage-site-theme");
+
+        if (theme === "light") {
+          document.documentElement.dataset.siteTheme = "light";
+          document.documentElement.dataset.pfTheme = "light";
+        }
+      } catch (_error) {
+        /* Nothing happen */
+      }
+
+      try {
+        const sidebarIsopen = sessionStorage.getItem(articleSidebarOpenStorageKey);
+
+        if (sidebarIsopen === "true") {
+          document.documentElement.dataset.sidebarIsopen = "true";
+        }
+      } catch (_error) {
+        /* Nothing happen */
+      }
+    </script>
+    {description && <meta name="description" content={description} />}
+    <title>{title}</title>
+    <link rel="icon" href="/favicon.webp" type="image/webp" sizes="32x32" />
+  </head>
+  <body>
+    <SiteNavbar />
+    <NavbarSearchModal />
+    <main class="site-main">
+      <slot />
+    </main>
+  </body>
+</html>

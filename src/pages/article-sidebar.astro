@@ -1,0 +1,10 @@
+---
+import SidebarTree from '../components/SidebarTree.astro';
+import { getArticleSidebarNodes } from '../lib/article-catalog';
+
+export const partial = true;
+
+const sidebarNodes = await getArticleSidebarNodes();
+---
+
+<SidebarTree nodes={sidebarNodes} currentArticleId="" />

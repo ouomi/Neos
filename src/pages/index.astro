@@ -1,0 +1,22 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import HomePage from "../components/HomePage.astro";
+import { getHomeArticleListPages } from '../lib/article-catalog';
+import { getSiteBasicInfo } from '../lib/site-config';
+import '../styles/page-shell.css';
+
+const homeArticleListPages = await getHomeArticleListPages();
+const homeArticleListPage = homeArticleListPages[0];
+const siteBasicInfo = getSiteBasicInfo();
+const siteTitle = siteBasicInfo.title;
+const description = siteBasicInfo.description;
+---
+
+<BaseLayout title={siteTitle}>
+  <header class="site-header">
+    <h1 class="site-title">{siteTitle}</h1>
+    <p class="site-description">{description}</p>
+  </header>
+
+  <HomePage {...homeArticleListPage} />
+</BaseLayout>

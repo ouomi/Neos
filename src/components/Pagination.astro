@@ -1,0 +1,192 @@
+---
+import { getArticlePageUrl } from '../lib/site-routes';
+
+interface Props {
+  currentPage: number;
+  totalPages: number;
+}
+
+const { currentPage, totalPages } = Astro.props as Props;
+
+
+// 页数较多时只显示当前页附近的页码，避免分页栏过长。
+const pages: Array<number | string> = [];
+function addPage(page: number): void {
+  if (pages.includes(page)) {
+    return;
+  }
+
+  const previous = pages[pages.length - 1];
+  if (typeof previous === "number" && page - previous > 1) {
+    pages.push("...");
+  }
+  pages.push(page);
+}
+
+if (totalPages <= 7) {
+  for (let page = 1; page <= totalPages; page += 1) {
+    addPage(page);
+  }
+} else {
+  addPage(1);
+  if (currentPage > 4) {
+    pages.push("...");
+  }
+  for (
+    let page = Math.max(2, currentPage - 1);
+    page <= Math.min(totalPages - 1, currentPage + 1);
+    page += 1
+  ) {
+    addPage(page);
+  }
+  if (currentPage < totalPages - 3) {
+    pages.push("...");
+  }
+  addPage(totalPages);
+}
+---
+
+{
+  totalPages > 1 && (
+    <nav class="pagination" aria-label="文章分页">
+      {currentPage > 1 && (
+        <a
+          class="pagination-arrow"
+          href={getArticlePageUrl(currentPage - 1)}
+          aria-label="上一页"
+        >
+          ‹
+        </a>
+      )}
+      {currentPage <= 1 && (
+        <span class="pagination-arrow disabled" aria-hidden="true">
+          ‹
+        </span>
+      )}
+
+      <div class="pagination-pages">
+        {pages.map(function (page) {
+          if (typeof page === "string") {
+            return (
+              <span class="pagination-ellipsis" aria-hidden="true">
+                {page}
+              </span>
+            );
+          } else if (page === currentPage) {
+            return (
+              <span class="pagination-page current" aria-current="page">
+                {page}
+              </span>
+            );
+          } else {
+            return (
+              <a class="pagination-page" href={getArticlePageUrl(page)}>
+                {page}
+              </a>
+            );
+          }
+        })}
+      </div>
+
+      {currentPage < totalPages && (
+        <a
+          class="pagination-arrow"
+          href={getArticlePageUrl(currentPage + 1)}
+          aria-label="下一页"
+        >
+          ›
+        </a>
+      )}
+      {currentPage >= totalPages && (
+        <span class="pagination-arrow disabled" aria-hidden="true">
+          ›
+        </span>
+      )}
+    </nav>
+  )
+}
+
+<style>
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.35rem;
+    width: min(100%, 48rem);
+    margin: 1.75rem auto;
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+  }
+
+  .pagination-pages {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .pagination-page,
+  .pagination-arrow {
+    display: grid;
+    place-items: center;
+    min-width: 2.25rem;
+    height: 2.25rem;
+    padding-inline: 0.5rem;
+    color: var(--text-secondary);
+    border: 1px solid transparent;
+    border-radius: 0.45rem;
+    text-decoration: none;
+  }
+
+  .pagination-page:hover,
+  .pagination-arrow:hover {
+    color: var(--accent-color);
+    background: var(--md-primary-container);
+    border-color: var(--border-color);
+  }
+
+  .pagination-page.current {
+    color: var(--md-on-primary);
+    background: var(--md-primary);
+    border-color: var(--md-primary);
+    box-shadow: 0 0.2rem 0.6rem var(--shadow-color);
+  }
+
+  .pagination-arrow {
+    font-size: 1.35rem;
+    line-height: 1;
+  }
+
+  .pagination-arrow.disabled {
+    color: var(--border-color);
+  }
+
+  .pagination-ellipsis {
+    display: grid;
+    place-items: center;
+    width: 1.3rem;
+    height: 2.25rem;
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 40rem) {
+    .pagination {
+      gap: 0.1rem;
+    }
+
+    .pagination-pages {
+      gap: 0.1rem;
+    }
+
+    .pagination-page,
+    .pagination-arrow {
+      min-width: 2rem;
+      height: 2rem;
+      padding-inline: 0.3rem;
+    }
+
+    .pagination-ellipsis {
+      width: 0.9rem;
+      height: 2rem;
+    }
+  }
+</style>

@@ -1,0 +1,44 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleList from '../../components/ArticleList.astro';
+import CategoryCard from '../../components/CategoryCard.astro';
+import { getArticleCategories } from '../../lib/article-catalog';
+import { getHomeUrl } from '../../lib/site-routes';
+import { getSiteBasicInfo } from '../../lib/site-config';
+import '../../styles/page-shell.css';
+import '../../styles/category-card-forpages.css';
+
+export const getStaticPaths = (async function () {
+  const categories = await getArticleCategories();
+
+  return categories.map(function (category) {
+    return {
+      params: { category: category.uuid },
+      props: { category: category },
+    };
+  });
+}) satisfies GetStaticPaths;
+
+const { category } = Astro.props;
+const homeUrl = getHomeUrl();
+const siteBasicInfo = getSiteBasicInfo();
+const siteTitle = siteBasicInfo.title;
+const description = `${category.name} 分类下的文章列表。`;
+---
+
+<BaseLayout
+  title={`${category.name} · ${siteTitle}`}
+  description={description}
+>
+  <header class="site-header">
+    <a class="site-title-link" href={homeUrl}>{siteTitle}</a>
+    <p>{category.name} · {category.articles.length} 篇文章</p>
+  </header>
+
+  <ArticleList articles={category.articles}>
+    <div slot="category-card" class="category-page-category-card">
+      <CategoryCard />
+    </div>
+  </ArticleList>
+</BaseLayout>

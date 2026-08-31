@@ -1,0 +1,164 @@
+---
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { getNavbarConfig } from '../lib/site-config';
+import { getHomeUrl, isActiveNavbarLink } from "../lib/site-routes";
+import NavbarSearch from "./NavbarSearch.astro";
+import "../styles/SiteNavbar.css";
+
+const sunIcon = readFileSync(
+  resolve("public/icons/theme-sun.svg"),
+  "utf-8",
+);
+const moonIcon = readFileSync(
+  resolve("public/icons/theme-moon.svg"),
+  "utf-8",
+);
+
+const pathname = Astro.url.pathname;
+const homeUrl = getHomeUrl();
+const navbarConfig = getNavbarConfig();
+const navbarName = navbarConfig.name;
+const navbarLinks = navbarConfig.links;
+const navbarBrand = navbarConfig.brand;
+let navbarLogoText = '';
+let navbarLogoImageSrc: string | undefined;
+let navbarLogoImageWidth: string | undefined;
+
+if (navbarBrand.kind === 'image') {
+  navbarLogoImageSrc = navbarBrand.src;
+  navbarLogoImageWidth = navbarBrand.width;
+} else {
+  navbarLogoText = navbarBrand.text;
+}
+---
+
+<header class="navbar">
+  <div class="navbar-inner">
+    <a class="navbar-brand" href={homeUrl} aria-label={`${navbarName} 首页`}>
+      <span
+        class:list={[
+          'navbar-logo',
+          { 'navbar-logo-image': navbarLogoImageSrc !== undefined },
+          { 'navbar-logo-text': navbarLogoImageSrc === undefined },
+        ]}
+        style={
+          navbarLogoImageWidth !== undefined &&
+          `--navbar-logo-width: ${navbarLogoImageWidth};`
+        }
+        aria-hidden="true"
+      >
+        {navbarLogoImageSrc !== undefined && (
+          <img
+            src={navbarLogoImageSrc}
+            alt=""
+            width="520"
+            height="123"
+            decoding="async"
+            fetchpriority="high"
+          />
+        )}
+        {navbarLogoImageSrc === undefined && navbarLogoText}
+      </span>
+      <span class="navbar-title">{navbarName}</span>
+    </a>
+
+    <div class="navbar-actions">
+      <NavbarSearch />
+
+      <nav class="navbar-links" aria-label="主导航">
+        {
+          navbarLinks.map(function (link) {
+            const isActive = isActiveNavbarLink(pathname, link.href);
+            let ariaCurrent: "page" | undefined;
+
+            if (isActive === true) {
+              ariaCurrent = "page";
+            }
+
+            return (
+              <a
+                class:list={["navbar-link", { active: isActive }]}
+                href={link.href}
+                aria-current={ariaCurrent}
+                data-navbar-link
+              >
+                {link.label}
+              </a>
+            );
+          })
+        }
+      </nav>
+
+      <button
+        class="theme-toggle"
+        type="button"
+        data-theme-toggle
+        aria-label="切换颜色主题"
+      >
+        <span
+          class="theme-icon theme-icon-sun"
+          aria-hidden="true"
+          set:html={sunIcon}
+        ></span>
+        <span
+          class="theme-icon theme-icon-moon"
+          aria-hidden="true"
+          set:html={moonIcon}
+        ></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<script>
+  function updateThemeButton(button: HTMLButtonElement) {
+    const theme = document.documentElement.dataset.siteTheme;
+
+    if (theme === "dark") {
+      button.setAttribute("aria-label", "切换到浅色模式");
+      button.setAttribute("title", "切换到浅色模式");
+    } else {
+      button.setAttribute("aria-label", "切换到深色模式");
+      button.setAttribute("title", "切换到深色模式");
+    }
+  }
+
+  function setupThemeToggle() {
+    const button = document.querySelector<HTMLButtonElement>(
+      "[data-theme-toggle]",
+    );
+
+    if (button === null) {
+      return;
+    }
+
+    updateThemeButton(button);
+
+    if (button.hasAttribute("data-theme-toggle-ready") === true) {
+      return;
+    }
+
+    button.setAttribute("data-theme-toggle-ready", "");
+    button.addEventListener("click", function () {
+      let theme = "dark";
+
+      if (document.documentElement.dataset.siteTheme === "dark") {
+        theme = "light";
+      }
+
+      document.documentElement.dataset.siteTheme = theme;
+      document.documentElement.dataset.pfTheme = theme;
+
+      try {
+        localStorage.setItem("localstorage-site-theme", theme);
+      } catch {
+        /* The selected theme still applies when storage is unavailable. */
+      }
+
+      updateThemeButton(button);
+    });
+  }
+
+  setupThemeToggle();
+</script>

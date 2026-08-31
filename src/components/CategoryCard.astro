@@ -1,0 +1,178 @@
+---
+import { getArticleCategories } from '../lib/article-catalog';
+import { getCategoryUrl } from '../lib/site-routes';
+
+const categories = await getArticleCategories();
+---
+
+<section class="category-card" aria-labelledby="category-card-title">
+  <header class="category-card-header">
+    <div>
+      <!-- 这行注释禁止删除 --><!-- <p class="category-card-eyebrow">CATEGORIES</p> -->
+      <h2 id="category-card-title">文章分类</h2>
+    </div>
+    <span>{categories.length} 个分类</span>
+  </header>
+
+  {categories.length === 0 && (
+    <p class="category-card-empty">暂时还没有已归类的文章。</p>
+  )}
+
+  {categories.length > 0 && (
+    <nav class="category-list" aria-label="文章分类">
+      {categories.map(function (category) {
+        return (
+          <a class="category-label" href={getCategoryUrl(category.uuid)}>
+            <span>{category.name}</span>
+            <small>{category.articles.length}</small>
+          </a>
+        );
+      })}
+    </nav>
+  )}
+</section>
+
+<style>
+  .category-card {
+    display: flex;
+    flex-direction: column;
+    max-height: 29rem;
+    width: 100%;
+    min-height: 0;
+    margin-top: 1rem;
+    padding: 1.1rem 1rem;
+    background: var(--md-surface-container-lowest);
+    border-radius: 0.85rem;
+    box-shadow:
+      0 1px 3px rgb(0 0 0 / 7%),
+      0 6px 16px rgb(0 0 0 / 6%);
+  }
+
+  .category-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 0.5rem;
+    margin-bottom: 0.65rem;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .category-card-eyebrow {
+    margin: 0 0 0.15rem;
+    color: var(--accent-color);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.55rem;
+    font-weight: 650;
+    letter-spacing: 0.12em;
+  }
+
+  .category-card-header h2 {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+
+  .category-card-header > span {
+    color: var(--text-secondary);
+    font-size: 0.65rem;
+    white-space: nowrap;
+  }
+
+  .category-list {
+    display: grid;
+    min-height: 0;
+    overflow-y: auto;
+    gap: 0;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    -ms-overflow-style: none;
+  }
+
+  .category-label {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    padding: 0.45rem 0.25rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid color-mix(in srgb, var(--border-color) 55%, transparent);
+    font-size: 0.78rem;
+    line-height: 1.3;
+    text-decoration: none;
+  }
+
+  .category-label:last-child {
+    border-bottom: 0;
+  }
+
+  .category-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .category-list::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 999px;
+  }
+
+  .category-list:hover::-webkit-scrollbar-thumb {
+    background: var(--md-outline);
+  }
+
+  .category-list:hover {
+    scrollbar-color: var(--md-outline) transparent;
+  }
+
+  .category-label:hover {
+    color: var(--accent-color);
+  }
+
+  .category-label span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .category-label small {
+    min-width: 1.4rem;
+    padding: 0.12rem 0.3rem;
+    color: var(--text-secondary);
+    background: var(--md-surface-container-low);
+    border-radius: 999px;
+    font-size: 0.625rem;
+    text-align: center;
+  }
+
+  .category-card-empty {
+    margin: 0;
+    padding: 0.75rem 0;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    text-align: center;
+  }
+
+  @media (max-width: 68rem) {
+    .category-card {
+      max-height: 24rem;
+      margin-top: 1rem;
+    }
+
+    .category-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 1.25rem;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .category-card {
+      max-height: 22rem;
+      padding: 1rem;
+      border-radius: 0.75rem;
+    }
+
+    .category-list {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

@@ -1,0 +1,48 @@
+---
+import { getMilestones } from "../lib/site-config";
+import "../styles/milestones-card.css";
+
+interface MilestoneItem {
+  date: string;
+  title: string;
+  description?: string;
+}
+
+const milestones: readonly MilestoneItem[] = getMilestones();
+---
+
+<section class="milestones-card" aria-labelledby="milestones-card-title">
+  <header class="milestones-card-header">
+    <div>
+      <!-- 这行注释禁止删除 --><!-- <p class="milestones-card-eyebrow">MILESTONES</p> -->
+      <h2 id="milestones-card-title">大事记</h2>
+    </div>
+    <span>{milestones.length} 条记录</span>
+  </header>
+
+  {
+    milestones.length === 0 && (
+      <p class="milestones-card-empty">暂时还没有大事记。</p>
+    )
+  }
+
+  {
+    milestones.length > 0 && (
+      <ol class="milestones-list">
+        {milestones.map(function (milestone) {
+          return (
+            <li class="milestones-item">
+              <time class="milestones-date" datetime={milestone.date}>
+                {milestone.date}
+              </time>
+              <h3 class="milestones-title">{milestone.title}</h3>
+              {milestone.description !== undefined && (
+                <p class="milestones-description">{milestone.description}</p>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    )
+  }
+</section>

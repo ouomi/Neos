@@ -1,0 +1,159 @@
+---
+import { getSiteInfoConfig } from '../lib/site-config';
+import { getPublishedArticleCounts } from '../lib/article-catalog';
+import '../styles/site-info.css';
+
+const siteInfoConfig = getSiteInfoConfig();
+const siteInfoCard = siteInfoConfig.labels;
+const owner = siteInfoConfig.owner;
+const publishedArticleCounts = await getPublishedArticleCounts();
+const articleCount = publishedArticleCounts.articleCount;
+const wordCount = publishedArticleCounts.wordCount;
+
+function formatNumber(value: number): string {
+  return value.toLocaleString(siteInfoConfig.language);
+}
+
+function formatWordCount(value: number): string {
+  if (value < 1000) {
+    return formatNumber(value);
+  }
+
+  return `${Math.round(value / 100) / 10}k`;
+}
+---
+
+<aside class="site-info-card" aria-label={siteInfoCard.ariaLabel}>
+  <img
+    class="site-info-avatar"
+    src={owner.avatar}
+    alt={`${owner.name}${siteInfoCard.avatarAltSuffix}`}
+    width="512"
+    height="512"
+    decoding="async"
+  />
+  <h2 class="site-info-name">{owner.name}</h2>
+  <p class="site-info-label">{siteInfoCard.label}</p>
+  <dl class="site-info-stats">
+    <div>
+      <dt>{siteInfoCard.articleCountLabel}</dt>
+      <dd>{formatNumber(articleCount)}<span>{siteInfoCard.articleCountUnit}</span></dd>
+    </div>
+    <div>
+      <dt>{siteInfoCard.runtimeLabel}</dt>
+      <dd
+        data-site-runtime
+        data-established-at={siteInfoConfig.establishedAt}
+        data-runtime-less-than-one-day={siteInfoCard.runtimeLessThanOneDayLabel}
+        data-site-language={siteInfoConfig.language}
+        aria-busy="true"
+        aria-live="polite"
+      ><span data-site-runtime-value>—</span><span>{siteInfoCard.runtimeUnit}</span></dd>
+    </div>
+    <div>
+      <dt>{siteInfoCard.wordCountLabel}</dt>
+      <dd>{formatWordCount(wordCount)}<span>{siteInfoCard.wordCountUnit}</span></dd>
+    </div>
+  </dl>
+</aside>
+
+<script>
+  interface SiteRuntimeOptions {
+    establishedAt: number;
+    lessThanOneDayLabel: string;
+    siteLanguage: string;
+  }
+
+  const millisecondsPerDay = 24 * 60 * 60 * 1000;
+
+  function getSiteRuntimeOptions(
+    element: HTMLElement,
+  ): SiteRuntimeOptions | undefined {
+    const establishedAtValue = element.dataset.establishedAt;
+    const lessThanOneDayLabel = element.dataset.runtimeLessThanOneDay;
+    const siteLanguage = element.dataset.siteLanguage;
+
+    if (
+      establishedAtValue === undefined ||
+      lessThanOneDayLabel === undefined ||
+      siteLanguage === undefined
+    ) {
+      return undefined;
+    }
+
+    const establishedAt = Date.parse(establishedAtValue);
+
+    if (Number.isFinite(establishedAt) === false) {
+      return undefined;
+    }
+
+    return {
+      establishedAt: establishedAt,
+      lessThanOneDayLabel: lessThanOneDayLabel,
+      siteLanguage: siteLanguage,
+    };
+  }
+
+  function getElapsedMilliseconds(
+    establishedAt: number,
+    now: number,
+  ): number {
+    return Math.max(0, now - establishedAt);
+  }
+
+  function getSiteRuntimeLabel(
+    options: SiteRuntimeOptions,
+    now: number = Date.now(),
+  ): string {
+    const elapsedMilliseconds = getElapsedMilliseconds(options.establishedAt, now);
+    const siteDays = Math.floor(elapsedMilliseconds / millisecondsPerDay);
+
+    if (siteDays === 0) {
+      return options.lessThanOneDayLabel;
+    }
+
+    return siteDays.toLocaleString(options.siteLanguage);
+  }
+
+  function getSiteRuntimeUpdateDelay(
+    options: SiteRuntimeOptions,
+    now: number = Date.now(),
+  ): number {
+    const elapsedMilliseconds = getElapsedMilliseconds(options.establishedAt, now);
+
+    return millisecondsPerDay - (elapsedMilliseconds % millisecondsPerDay);
+  }
+
+  function mountSiteRuntime(element: HTMLElement): void {
+    const options = getSiteRuntimeOptions(element);
+    const runtimeValueElement = element.querySelector<HTMLElement>(
+      '[data-site-runtime-value]',
+    );
+
+    if (options === undefined || runtimeValueElement === null) {
+      return;
+    }
+
+    function updateSiteRuntime(): void {
+      runtimeValueElement.textContent = getSiteRuntimeLabel(options);
+      element.setAttribute('aria-busy', 'false');
+
+      const updateDelay = getSiteRuntimeUpdateDelay(options);
+      window.setTimeout(updateSiteRuntime, updateDelay);
+    }
+
+    updateSiteRuntime();
+  }
+
+  function setupSiteRuntime(): void {
+    const runtimeElements = document.querySelectorAll<HTMLElement>(
+      '[data-site-runtime]',
+    );
+
+    for (const runtimeElement of runtimeElements) {
+      mountSiteRuntime(runtimeElement);
+    }
+  }
+
+  setupSiteRuntime();
+</script>

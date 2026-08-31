@@ -1,0 +1,35 @@
+---
+import { getArticleSidebarUrl } from '../lib/site-routes';
+import '../styles/sidebar.css';
+
+const articleSidebarUrl = getArticleSidebarUrl();
+---
+
+<aside
+  class="article-sidebar"
+  data-state="closed"
+  data-initial
+  data-sidebar-endpoint={articleSidebarUrl}
+>
+  <button
+    class="article-sidebar-toggle"
+    type="button"
+    aria-controls="article-sidebar-panel"
+    aria-expanded="false"
+    aria-label="展开文章目录"
+  >
+    ›
+  </button>
+  <div
+    class="article-sidebar-panel"
+    id="article-sidebar-panel"
+    aria-hidden="true"
+    inert
+  >
+    <nav aria-label="文章目录" data-sidebar-content>
+      <p class="article-sidebar-status">正在加载文章目录…</p>
+    </nav>
+  </div>
+</aside>
+
+<script src="../scripts/article-sidebar.ts"></script>

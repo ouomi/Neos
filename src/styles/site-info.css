@@ -1,0 +1,118 @@
+.site-info-card {
+  padding: 1.5rem 1.3rem;
+  color: var(--text-primary);
+  text-align: center;
+  background: var(--md-surface-container-lowest);
+  border: 0;
+  border-radius: 0.85rem;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 7%), 0 6px 16px rgb(0 0 0 / 6%);
+}
+
+.site-info-avatar {
+  display: block;
+  width: 6.25rem;
+  height: 6.25rem;
+  margin: 0 auto 1rem;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.site-info-name {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.site-info-label {
+  margin: 0.35rem 0 1.25rem;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.site-info-stats {
+  display: grid;
+  gap: 0.8rem;
+  margin: 0;
+  padding-top: 1.05rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.site-info-stats div {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.6rem;
+  min-width: 0;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.site-info-stats dt {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.site-info-stats dd {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.site-info-stats dd span {
+  margin-left: 0.15rem;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+.site-info-stats dd [data-site-runtime-value] {
+  margin-left: 0;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+@media (max-width: 68rem) {
+  .site-info-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 1rem;
+    align-items: center;
+    text-align: left;
+  }
+
+  .site-info-avatar {
+    grid-row: 1 / 3;
+    width: 5rem;
+    height: 5rem;
+    margin: 0;
+  }
+
+  .site-info-label {
+    margin: 0.1rem 0 0;
+  }
+
+  .site-info-stats {
+    grid-column: 1 / -1;
+    grid-template-columns: 1fr;
+    width: 100%;
+    margin-top: 1rem;
+  }
+
+  .site-info-stats div {
+    display: grid;
+    grid-template-columns: 4rem minmax(0, 1fr);
+    text-align: left;
+  }
+
+  .site-info-stats dd {
+    margin-top: 0;
+  }
+}

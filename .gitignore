@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.astro/
+pnpm-workspace.yaml
+pnpm-lock.yaml
+vendor/
+wrangler.jsonc
+
+AGENTS.md
+AI-output/
+
+sync2win.bat
+sync2winASCII.bat
