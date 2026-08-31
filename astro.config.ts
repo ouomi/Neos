@@ -1,6 +1,15 @@
 import { defineConfig } from 'astro/config';
 import { satteri } from '@astrojs/markdown-satteri';
 
+let base = '/';
+
+if (
+  process.env.ASTRO_BASE !== undefined &&
+  process.env.ASTRO_BASE.trim() !== ''
+) {
+  base = process.env.ASTRO_BASE;
+}
+
 interface HtmlImageNode {
   properties?: Record<string, unknown>;
 }
@@ -65,6 +74,7 @@ function addRawImageLoadingAttributes() {
 }
 
 export default defineConfig({
+  base: base,
   compressHTML: true,
   vite: {
     build: {

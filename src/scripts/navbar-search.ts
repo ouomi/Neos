@@ -4,6 +4,11 @@ interface PagefindModal extends Element {
 }
 
 let pagefindLoadPromise: Promise<void> | null = null;
+let pagefindBaseUrl = import.meta.env.BASE_URL;
+
+if (pagefindBaseUrl.endsWith('/') === false) {
+  pagefindBaseUrl += '/';
+}
 
 function getNavbarSearchModal(): PagefindModal | null {
   const modal = document.querySelector(
@@ -49,7 +54,7 @@ function loadPagefindStyles(): Promise<void> {
   return new Promise(function (resolve, reject) {
     const styles = document.createElement("link");
     styles.rel = "stylesheet";
-    styles.href = "/pagefind/pagefind-component-ui.css";
+    styles.href = `${pagefindBaseUrl}pagefind/pagefind-component-ui.css`;
     styles.dataset.pagefindComponentStyles = "";
     styles.addEventListener("load", function () {
       resolve();
@@ -78,7 +83,7 @@ function loadPagefindScript(): Promise<void> {
   return new Promise(function (resolve, reject) {
     const script = document.createElement("script");
     script.type = "module";
-    script.src = "/pagefind/pagefind-component-ui.js";
+    script.src = `${pagefindBaseUrl}pagefind/pagefind-component-ui.js`;
     script.dataset.pagefindComponentScript = "";
     script.addEventListener("load", function () {
       customElements.whenDefined("pagefind-modal").then(function () {

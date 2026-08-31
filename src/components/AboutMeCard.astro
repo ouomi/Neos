@@ -1,5 +1,6 @@
 ---
 import { getAboutMe } from '../lib/site-config';
+import { getSiteUrl } from '../lib/site-routes';
 import '../styles/about-me-card.css';
 
 interface LinkItem {
@@ -47,7 +48,7 @@ function hasIcon(iconName: string): boolean {
   {links.length > 0 && (
     <nav class="about-me-card-links" aria-label="我的链接">
       {links.map(function (link) {
-        const iconPath = `/icons/${link.icon}.svg`;
+        const iconPath = getSiteUrl(`/icons/${link.icon}.svg`);
 
         return (
           <a

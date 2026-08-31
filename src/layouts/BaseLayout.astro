@@ -4,6 +4,7 @@ import SiteNavbar from "../components/SiteNavbar.astro";
 import NavbarSearchModal from "../components/NavbarSearchModal.astro";
 import { getSiteBasicInfo } from '../lib/site-config';
 import { articleSidebarOpenStorageKey } from '../lib/article-sidebar-state';
+import { getSiteUrl } from '../lib/site-routes';
 
 interface Props {
   title: string;
@@ -59,7 +60,7 @@ if (description === undefined) {
     </script>
     {description && <meta name="description" content={description} />}
     <title>{title}</title>
-    <link rel="icon" href="/favicon.webp" type="image/webp" sizes="32x32" />
+    <link rel="icon" href={getSiteUrl('/favicon.webp')} type="image/webp" sizes="32x32" />
   </head>
   <body>
     <SiteNavbar />

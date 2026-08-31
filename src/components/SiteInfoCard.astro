@@ -1,5 +1,6 @@
 ---
 import { getSiteInfoConfig } from '../lib/site-config';
+import { getSiteUrl } from '../lib/site-routes';
 import { getPublishedArticleCounts } from '../lib/article-catalog';
 import '../styles/site-info.css';
 
@@ -26,7 +27,7 @@ function formatWordCount(value: number): string {
 <aside class="site-info-card" aria-label={siteInfoCard.ariaLabel}>
   <img
     class="site-info-avatar"
-    src={owner.avatar}
+    src={getSiteUrl(owner.avatar)}
     alt={`${owner.name}${siteInfoCard.avatarAltSuffix}`}
     width="512"
     height="512"

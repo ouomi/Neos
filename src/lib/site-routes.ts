@@ -6,6 +6,12 @@ const systemRouteSegments = {
 };
 
 const articleNavigationPrefix = 'pages';
+let baseUrl = import.meta.env.BASE_URL;
+
+if (baseUrl.endsWith('/') === false) {
+  baseUrl += '/';
+}
+
 const reservedPathPrefixes = new Set([
   systemRouteSegments.pagination,
   'index',
@@ -30,9 +36,29 @@ function isDigit(character: string): boolean {
   return false;
 }
 
-function getFirstPathSegment(pathname: string): string {
+function getSiteRelativePathname(pathname: string): string {
   const normalizedPathname = normalizeSitePathname(pathname);
-  const segments = normalizedPathname.split('/');
+
+  if (baseUrl === '/') {
+    return normalizedPathname;
+  }
+
+  const basePathname = normalizeSitePathname(baseUrl);
+
+  if (normalizedPathname === basePathname) {
+    return '/';
+  }
+
+  if (normalizedPathname.startsWith(`${basePathname}/`) === true) {
+    return normalizedPathname.slice(basePathname.length);
+  }
+
+  return normalizedPathname;
+}
+
+function getFirstPathSegment(pathname: string): string {
+  const siteRelativePathname = getSiteRelativePathname(pathname);
+  const segments = siteRelativePathname.split('/');
 
   if (segments.length < 2) {
     return '';
@@ -54,12 +80,20 @@ export function normalizeSitePathname(pathname: string): string {
   return normalizedPathname;
 }
 
+export function getSiteUrl(pathname: string): string {
+  if (pathname.startsWith('/') === false) {
+    return pathname;
+  }
+
+  return `${baseUrl}${pathname.slice(1)}`;
+}
+
 export function getHomeUrl(): string {
-  return '/';
+  return baseUrl;
 }
 
 export function getArticleUrl(permalink: string): string {
-  return `/${permalink}/`;
+  return getSiteUrl(`/${permalink}/`);
 }
 
 export function getArticlePageUrl(page: number): string {
@@ -71,15 +105,15 @@ export function getArticlePageUrl(page: number): string {
     return getHomeUrl();
   }
 
-  return `/${systemRouteSegments.pagination}/${page}/`;
+  return getSiteUrl(`/${systemRouteSegments.pagination}/${page}/`);
 }
 
 export function getCategoryUrl(categoryUuid: string): string {
-  return `/${systemRouteSegments.categories}/${categoryUuid}/`;
+  return getSiteUrl(`/${systemRouteSegments.categories}/${categoryUuid}/`);
 }
 
 export function getArticleSidebarUrl(): string {
-  return `/${systemRouteSegments.articleSidebar}/`;
+  return getSiteUrl(`/${systemRouteSegments.articleSidebar}/`);
 }
 
 export function isActiveNavbarLink(

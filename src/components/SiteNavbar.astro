@@ -2,7 +2,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { getNavbarConfig } from '../lib/site-config';
-import { getHomeUrl, isActiveNavbarLink } from "../lib/site-routes";
+import { getHomeUrl, getSiteUrl, isActiveNavbarLink } from "../lib/site-routes";
 import NavbarSearch from "./NavbarSearch.astro";
 import "../styles/SiteNavbar.css";
 
@@ -50,7 +50,7 @@ if (navbarBrand.kind === 'image') {
       >
         {navbarLogoImageSrc !== undefined && (
           <img
-            src={navbarLogoImageSrc}
+            src={getSiteUrl(navbarLogoImageSrc)}
             alt=""
             width="520"
             height="123"
@@ -69,7 +69,8 @@ if (navbarBrand.kind === 'image') {
       <nav class="navbar-links" aria-label="主导航">
         {
           navbarLinks.map(function (link) {
-            const isActive = isActiveNavbarLink(pathname, link.href);
+            const href = getSiteUrl(link.href);
+            const isActive = isActiveNavbarLink(pathname, href);
             let ariaCurrent: "page" | undefined;
 
             if (isActive === true) {
@@ -79,7 +80,7 @@ if (navbarBrand.kind === 'image') {
             return (
               <a
                 class:list={["navbar-link", { active: isActive }]}
-                href={link.href}
+                href={href}
                 aria-current={ariaCurrent}
                 data-navbar-link
               >
