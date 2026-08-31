@@ -1,0 +1,82 @@
+name: 部署 GitHub Pages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: 构建站点
+    runs-on: ubuntu-latest
+    env:
+      ASTRO_BASE: /${{ github.event.repository.name }}
+      PHOTOSWIPE_RELEASE_URL: https://github.com/ouomi/Neos/releases/download/photoswipe-v5.4.4
+      PHOTOSWIPE_ARCHIVE: photoswipe-5.4.4-built.tar.gz
+      PHOTOSWIPE_CHECKSUM: photoswipe-5.4.4-SHA256SUMS.txt
+
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v4
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: 启用 pnpm
+        run: corepack enable
+
+      - name: 安装站点依赖
+        run: pnpm install --frozen-lockfile=false
+
+      - name: 下载并校验 PhotoSwipe 构建产物
+        run: |
+          set -euo pipefail
+          download_dir="$RUNNER_TEMP/photoswipe"
+          archive_path="$download_dir/$PHOTOSWIPE_ARCHIVE"
+          checksum_path="$download_dir/$PHOTOSWIPE_CHECKSUM"
+
+          mkdir -p "$download_dir" src/vendor
+          curl --fail --location --retry 3 \
+            --output "$archive_path" \
+            "$PHOTOSWIPE_RELEASE_URL/$PHOTOSWIPE_ARCHIVE"
+          curl --fail --location --retry 3 \
+            --output "$checksum_path" \
+            "$PHOTOSWIPE_RELEASE_URL/$PHOTOSWIPE_CHECKSUM"
+          tar --extract --gzip --file "$archive_path" --directory src/vendor
+          (
+            cd src/vendor
+            sha256sum --check "$checksum_path"
+          )
+
+      - name: 构建静态站点
+        run: pnpm build
+
+      - name: 禁用 Jekyll 处理
+        run: touch dist/.nojekyll
+
+      - name: 上传 GitHub Pages 工件
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: 发布站点
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: 发布到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
