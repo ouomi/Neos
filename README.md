@@ -44,7 +44,7 @@ Neos 是一个基于 Astro 的极简、高性能博客模板。
 ## 快速上手
 
 ```bash
-git clone https://
+git clone https://github.com/ouomi/Neos.git
 cd neos
 pnpm install
 pnpm approve-builds

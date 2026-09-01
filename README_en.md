@@ -45,7 +45,7 @@ Photoswipe is compiled from source to reduce the risk of upstream 3rd supply cha
 ## Quick start
 
 ```bash
-git clone https://
+git clone https://github.com/ouomi/Neos.git
 cd neos
 pnpm install
 pnpm approve-builds
