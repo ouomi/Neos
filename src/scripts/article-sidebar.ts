@@ -94,10 +94,18 @@ function prepareSidebarTree(content: HTMLElement): void {
   let currentLink: HTMLAnchorElement | null = null;
 
   for (const link of sidebarLinks) {
-    const linkUrl = new URL(link.href, window.location.href);
+    let sidebarPath = link.dataset.sidebarPath;
+
+    if (sidebarPath === undefined) {
+      sidebarPath = link.getAttribute('href') ?? undefined;
+    }
+
     link.removeAttribute('aria-current');
 
-    if (normalizeSitePathname(linkUrl.pathname) === currentPathname) {
+    if (
+      sidebarPath !== undefined &&
+      normalizeSitePathname(sidebarPath) === currentPathname
+    ) {
       link.setAttribute('aria-current', 'page');
       currentLink = link;
     }
@@ -179,6 +187,12 @@ function mountArticleSidebar(
 
     if (content.getAttribute('data-sidebar-content-ready') === 'true') {
       restoreSidebarScrollTop();
+      sidebarLoadPromise = Promise.resolve();
+      return sidebarLoadPromise;
+    }
+
+    if (content.getAttribute('data-sidebar-content-restored') === 'true') {
+      prepareLoadedSidebarTree();
       sidebarLoadPromise = Promise.resolve();
       return sidebarLoadPromise;
     }

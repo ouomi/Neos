@@ -32,4 +32,52 @@ const articleSidebarUrl = getArticleSidebarUrl();
   </div>
 </aside>
 
+<script is:inline>
+  (function () {
+    const sidebarOpenStorageKey = 'sidebarIsopen';
+    const sidebarContentStorageKey = 'neos-article-sidebar-content';
+    const sidebarContentSavedAtStorageKey = 'neos-article-sidebar-content-saved-at';
+    const sidebarContentMaxAge = 24 * 60 * 60 * 1000;
+
+    try {
+      if (sessionStorage.getItem(sidebarOpenStorageKey) !== 'true') {
+        return;
+      }
+
+      const savedContent = sessionStorage.getItem(sidebarContentStorageKey);
+      const savedAt = sessionStorage.getItem(sidebarContentSavedAtStorageKey);
+
+      if (savedContent === null || savedAt === null) {
+        sessionStorage.removeItem(sidebarContentStorageKey);
+        sessionStorage.removeItem(sidebarContentSavedAtStorageKey);
+        return;
+      }
+
+      const parsedSavedAt = Number(savedAt);
+      const contentAge = Date.now() - parsedSavedAt;
+
+      if (
+        Number.isFinite(parsedSavedAt) === false ||
+        contentAge < 0 ||
+        contentAge >= sidebarContentMaxAge
+      ) {
+        sessionStorage.removeItem(sidebarContentStorageKey);
+        sessionStorage.removeItem(sidebarContentSavedAtStorageKey);
+        return;
+      }
+
+      const content = document.querySelector('[data-sidebar-content]');
+
+      if (content === null) {
+        return;
+      }
+
+      content.innerHTML = savedContent;
+      content.setAttribute('data-sidebar-content-restored', 'true');
+    } catch (_error) {
+      // 某些隐私模式可能禁用 sessionStorage，此时由常规脚本加载目录。
+    }
+  })();
+</script>
+
 <script src="../scripts/article-sidebar.ts"></script>

@@ -28,6 +28,7 @@ const { nodes, currentArticleId } = Astro.props;
     }
 
     const isCurrentArticle = node.id === currentArticleId;
+    const articleUrl = getArticleUrl(node.permalink);
     let currentAttribute = {};
     if (isCurrentArticle === true) {
       currentAttribute = { 'aria-current': 'page' };
@@ -35,7 +36,7 @@ const { nodes, currentArticleId } = Astro.props;
 
     return (
       <li class="sidebar-article">
-        <a href={getArticleUrl(node.permalink)} {...currentAttribute}>{node.title}</a>
+        <a href={articleUrl} data-sidebar-path={articleUrl} {...currentAttribute}>{node.title}</a>
       </li>
     );
   })}
