@@ -1,10 +1,14 @@
+[English](README_en.md) | **现在是简体中文**
+
+---
+
 # Neos
 
 Neos 是一个基于 Astro 的极简、高性能博客模板。
 
 ## 百闻不如一见
 
-展示站[点击这里]()
+展示站请[点这里](https://ouomi.github.io/Neos)
 
 ## 它可以做什么？
 
@@ -44,10 +48,10 @@ git clone https://
 cd neos
 pnpm install
 pnpm approve-builds
-pnpm build
-curl -
-tar
-pnpm preview
+curl -LO https://github.com/ouomi/Neos/releases/download/photoswipe-v5.4.4/photoswipe-5.4.4-built.tar.gz
+mkdir -p src/vendor
+tar -zxvf photoswipe-5.4.4-built.tar.gz -C src/vendor
+pnpm build && pnpm preview
 ```
 
 ## 致谢
@@ -69,11 +73,11 @@ skills：
 
 ## 关于开发环境
 
-PVE运行Debian13虚拟机
+- **操作系统：** Proxmox VE 运行 Debian13 虚拟机
 
-使用mise管理node
+- **Node.js 管理器：** 使用 mise 管理 node
 
-Node.js版本为22
+- **Node.js 版本：** v22
 
 ## 许可证
 
