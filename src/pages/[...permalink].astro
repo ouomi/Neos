@@ -56,17 +56,122 @@ if (article.data.author !== undefined && article.data.author !== null) {
 </BaseLayout>
 
 <script>
-  let imageViewerLoaded = false;
+  let imageViewerPromise:
+    | Promise<typeof import('../scripts/image-viewer.ts')>
+    | undefined;
   let codeBlocksLoaded = false;
 
   function loadImageViewer() {
-    if (imageViewerLoaded === true) {
+    if (imageViewerPromise !== undefined) {
+      return imageViewerPromise;
+    }
+
+    const promise = import('../scripts/image-viewer.ts');
+    imageViewerPromise = promise;
+
+    promise.catch(function () {
+      if (imageViewerPromise === promise) {
+        imageViewerPromise = undefined;
+      }
+    });
+
+    return promise;
+  }
+
+  function preloadImageViewer() {
+    loadImageViewer().catch(function () {
+    });
+  }
+
+  function getImageViewerTrigger(target: EventTarget | null) {
+    if (!(target instanceof HTMLImageElement)) {
+      return undefined;
+    }
+
+    if (target.matches('.article-content img.article-image-trigger') === false) {
+      return undefined;
+    }
+
+    return target;
+  }
+
+  function openImageViewer(image: HTMLImageElement) {
+    loadImageViewer()
+      .then(function (imageViewer) {
+        return imageViewer.openImageViewer(image);
+      })
+      .catch(function () {
+      });
+  }
+
+  function prepareImageViewerTrigger(image: HTMLImageElement) {
+    if (image.closest('a, button') !== null) {
       return;
     }
 
-    imageViewerLoaded = true;
-    window.removeEventListener('pointerdown', loadImageViewer);
-    import('../scripts/image-viewer.ts');
+    image.classList.add('article-image-trigger');
+    image.tabIndex = 0;
+    image.setAttribute('role', 'button');
+
+    if (image.hasAttribute('aria-label') === false) {
+      const alt = image.alt.trim();
+      let label = '预览图片';
+
+      if (alt.length > 0) {
+        label += '：' + alt;
+      }
+
+      image.setAttribute('aria-label', label);
+    }
+  }
+
+  function prepareImageViewerTriggers() {
+    document.querySelectorAll('.article-content img').forEach(function (image) {
+      if (image instanceof HTMLImageElement) {
+        prepareImageViewerTrigger(image);
+      }
+    });
+  }
+
+  function preloadImageViewerForPointer(event: PointerEvent) {
+    const image = getImageViewerTrigger(event.target);
+
+    if (image === undefined) {
+      return;
+    }
+
+    preloadImageViewer();
+  }
+
+  function openImageViewerForClick(event: MouseEvent) {
+    const image = getImageViewerTrigger(event.target);
+
+    if (image === undefined || event.defaultPrevented === true) {
+      return;
+    }
+
+    event.preventDefault();
+    openImageViewer(image);
+  }
+
+  function openImageViewerForKeyboard(event: KeyboardEvent) {
+    const image = getImageViewerTrigger(event.target);
+
+    if (image === undefined || event.defaultPrevented === true) {
+      return;
+    }
+
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return;
+    }
+
+    event.preventDefault();
+
+    if (event.repeat === true) {
+      return;
+    }
+
+    openImageViewer(image);
   }
 
   function loadCodeBlocks() {
@@ -79,16 +184,19 @@ if (article.data.author !== undefined && article.data.author !== null) {
   }
 
   if (document.querySelector('.article-content img') !== null) {
+    prepareImageViewerTriggers();
+
     if ('requestIdleCallback' in window) {
-      window.requestIdleCallback(loadImageViewer, { timeout: 3000 });
+      window.requestIdleCallback(preloadImageViewer, { timeout: 3000 });
     } else {
-      window.setTimeout(loadImageViewer, 1500);
+      window.setTimeout(preloadImageViewer, 1500);
     }
 
-    window.addEventListener('pointerdown', loadImageViewer, {
-      once: true,
+    document.addEventListener('pointerdown', preloadImageViewerForPointer, {
       passive: true,
     });
+    document.addEventListener('click', openImageViewerForClick);
+    document.addEventListener('keydown', openImageViewerForKeyboard);
   }
 
   if (document.querySelector('.article-content pre.astro-code') !== null) {

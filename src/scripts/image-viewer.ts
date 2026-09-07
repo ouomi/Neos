@@ -36,7 +36,19 @@ interface PhotoSwipeUiInstance {
 }
 
 let lightbox: PhotoSwipeLightbox | undefined;
-const pendingImages = new WeakSet<HTMLImageElement>();
+let photoSwipeModulePromise:
+  | Promise<typeof import('../vendor/photoswipe/photoswipe.esm.js')>
+  | undefined;
+let openingImage: HTMLImageElement | undefined;
+
+interface ImageViewerItemData {
+  src: string;
+  msrc: string;
+  alt: string;
+  width: number;
+  height: number;
+  element: HTMLImageElement;
+}
 
 function installImageViewerStyles() {
   if (document.getElementById(imageViewerStyleId) !== null) {
@@ -49,49 +61,57 @@ function installImageViewerStyles() {
   document.head.appendChild(styles);
 }
 
-function enableImageViewer(image: HTMLImageElement) {
-  if (image.naturalWidth > 0 && image.naturalHeight > 0) {
-    image.classList.add('article-image-trigger');
+function loadPhotoSwipeModule() {
+  if (photoSwipeModulePromise !== undefined) {
+    return photoSwipeModulePromise;
   }
+
+  const promise = import('../vendor/photoswipe/photoswipe.esm.js');
+  photoSwipeModulePromise = promise;
+
+  promise.catch(function () {
+    if (photoSwipeModulePromise === promise) {
+      photoSwipeModulePromise = undefined;
+    }
+  });
+
+  return promise;
 }
 
-function registerImage(image: HTMLImageElement) {
-  enableImageViewer(image);
+function createImageViewerData() {
+  const imageData: ImageViewerItemData[] = [];
 
-  if (image.classList.contains('article-image-trigger')) {
-    return;
-  }
+  document.querySelectorAll('.article-content img.article-image-trigger').forEach(
+    function (image) {
+      if (!(image instanceof HTMLImageElement)) {
+        return;
+      }
 
-  if (pendingImages.has(image)) {
-    return;
-  }
+      if (image.naturalWidth <= 0 || image.naturalHeight <= 0) {
+        return;
+      }
 
-  pendingImages.add(image);
+      const imageSource = image.currentSrc || image.src;
 
-  image.addEventListener(
-    'load',
-    function () {
-      pendingImages.delete(image);
-      enableImageViewer(image);
+      imageData.push({
+        src: imageSource,
+        msrc: imageSource,
+        alt: image.alt,
+        width: image.naturalWidth,
+        height: image.naturalHeight,
+        element: image,
+      });
     },
-    { once: true },
   );
 
-  image.addEventListener(
-    'error',
-    function () {
-      pendingImages.delete(image);
-    },
-    { once: true },
-  );
+  return imageData;
 }
 
 function createLightbox() {
   lightbox = new PhotoSwipeLightbox({
-    gallery: '.article-content',
-    children: 'img.article-image-trigger',
+    dataSource: [],
     pswpModule: function () {
-      return import('../vendor/photoswipe/photoswipe.esm.js');
+      return loadPhotoSwipeModule();
     },
     bgOpacity: 0.88,
     padding: { top: 20, bottom: 20, left: 20, right: 20 },
@@ -110,19 +130,12 @@ function createLightbox() {
     maxZoomLevel: 4,
   });
 
-  lightbox.addFilter('domItemData', function (itemData, element) {
-    if (!(element instanceof HTMLImageElement)) {
-      return itemData;
+  lightbox.addFilter('thumbEl', function (thumbEl, itemData) {
+    if (itemData.element instanceof HTMLImageElement) {
+      return itemData.element;
     }
 
-    const imageSource = element.currentSrc || element.src;
-    itemData.src = imageSource;
-    itemData.msrc = imageSource;
-    itemData.alt = element.alt;
-    itemData.w = element.naturalWidth;
-    itemData.h = element.naturalHeight;
-
-    return itemData;
+    return thumbEl;
   });
 
   lightbox.on('uiRegister', function () {
@@ -163,20 +176,107 @@ function createLightbox() {
     });
   });
 
+  lightbox.on('destroy', function () {
+    const image = openingImage;
+    openingImage = undefined;
+
+    if (image === undefined || image.isConnected === false) {
+      return;
+    }
+
+    window.requestAnimationFrame(function () {
+      image.focus({ preventScroll: true });
+    });
+  });
+
   lightbox.init();
 }
 
-function initializeImageViewer() {
-  lightbox?.destroy();
+function getLightbox() {
+  if (lightbox === undefined) {
+    createLightbox();
+  }
 
-  document.querySelectorAll('.article-content img').forEach(function (image) {
-    if (image instanceof HTMLImageElement) {
-      registerImage(image);
-    }
+  return lightbox;
+}
+
+function waitForImage(image: HTMLImageElement) {
+  if (image.naturalWidth > 0 && image.naturalHeight > 0) {
+    return Promise.resolve(true);
+  }
+
+  if (image.complete === true) {
+    return Promise.resolve(false);
+  }
+
+  return new Promise<boolean>(function (resolve) {
+    image.addEventListener(
+      'load',
+      function () {
+        resolve(image.naturalWidth > 0 && image.naturalHeight > 0);
+      },
+      { once: true },
+    );
+
+    image.addEventListener(
+      'error',
+      function () {
+        resolve(false);
+      },
+      { once: true },
+    );
+  });
+}
+
+export async function openImageViewer(image: HTMLImageElement) {
+  if (image.classList.contains('article-image-trigger') === false) {
+    return false;
+  }
+
+  if (openingImage !== undefined || lightbox?.pswp !== undefined) {
+    return false;
+  }
+
+  const imageLoaded = await waitForImage(image);
+
+  if (imageLoaded === false) {
+    return false;
+  }
+
+  try {
+    await loadPhotoSwipeModule();
+  } catch {
+    return false;
+  }
+
+  if (openingImage !== undefined || lightbox?.pswp !== undefined) {
+    return false;
+  }
+
+  const imageData = createImageViewerData();
+  const imageIndex = imageData.findIndex(function (itemData) {
+    return itemData.element === image;
   });
 
-  createLightbox();
+  if (imageIndex < 0) {
+    return false;
+  }
+
+  openingImage = image;
+
+  try {
+    const opened = getLightbox().loadAndOpen(imageIndex, imageData);
+
+    if (opened === false) {
+      openingImage = undefined;
+      return false;
+    }
+  } catch {
+    openingImage = undefined;
+    return false;
+  }
+
+  return true;
 }
 
 installImageViewerStyles();
-initializeImageViewer();

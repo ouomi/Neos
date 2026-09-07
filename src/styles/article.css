@@ -191,6 +191,11 @@
   cursor: zoom-in;
 }
 
+.article-content img.article-image-trigger:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 3px;
+}
+
 /* Containers that can be used directly from raw HTML in Markdown articles. */
 .article-content .md-details,
 .article-content .md-tip,
