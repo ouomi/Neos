@@ -3,7 +3,7 @@
 import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { extname, resolve } from 'node:path';
 
-const EMPTY_LIST_PATTERN = /^(tags|categories):(?:[ \t]*(?:null[ \t]*)?(?=\r?$)(?!\r?\n[ \t]*-)|[ \t]*\r?\n[ \t]*-[ \t]*(?:null[ \t]*)?(?=\r?$)(?!\r?\n[ \t]+-))/gm;
+const EMPTY_LIST_PATTERN = /^(tags|categories):(?:[ \t]*(?:null[ \t]*)?(?=\r?$)(?!\r?\n(?:[ \t]*(?:#[^\r\n]*)?\r?\n)*[ \t]*-)|[ \t]*\r?\n[ \t]*-[ \t]*(?:null[ \t]*)?(?=\r?$)(?!\r?\n(?:[ \t]*(?:#[^\r\n]*)?\r?\n)*[ \t]*-))/gm;
 const PERMALINK_PATTERN = /^(permalink:[ \t]*)(['"]?)(\/+)(.*?)(\/+)\2[ \t]*(\r?)$/gm;
 const FRONTMATTER_PATTERN = /^(\uFEFF?---[ \t]*\r?\n)([\s\S]*?)(\r?\n---[ \t]*(?=\r?\n|$))/;
 
